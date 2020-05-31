@@ -1,29 +1,54 @@
 package com.devops.tasker;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class TasksController {
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
-    @GetMapping(path="/tasks")
-    public @ResponseBody Iterable<Task> getAllTasks() {
-        return taskRepository.findAll();
+    TasksController(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
-    @PostMapping(path="/tasks")
-    public @ResponseBody String addNewTask (@RequestParam String name
-            , @RequestParam Boolean completed) {
+    @GetMapping("/tasks")
+    List<Task> all() {
+        return (List<Task>) taskRepository.findAll();
+    }
 
-        Task task = new Task(name, completed);
-        taskRepository.save(task);
-        return "Saved";
+    @PostMapping("/tasks")
+    Task newTask(@RequestBody Task newTask) {
+        return taskRepository.save(newTask);
+    }
+
+    @GetMapping("/tasks/{id}")
+    Task one(@PathVariable Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+    }
+
+    @PutMapping("/tasks/{id}")
+    Task replaceTask(@RequestBody Task newTask, @PathVariable Long id) {
+        return taskRepository.findById(id)
+                .map(task -> {
+                    task.setName(newTask.getName());
+                    task.setCompleted(newTask.getCompleted());
+                    return taskRepository.save(task);
+                })
+                .orElseGet(() -> {
+                    newTask.setId(id);
+                    return taskRepository.save(newTask);
+                });
+    }
+
+    @DeleteMapping("/tasks/{id}")
+    void deleteTask(@PathVariable Long id) {
+        taskRepository.deleteById(id);
     }
 }
 
