@@ -49,3 +49,4 @@ This command is going to stop and then remove any container, volume and images c
 
 - [API Endpoints](docs/endpoints.md)
 - [Database](docs/database.md)
+- [Diagrams](docs/diagrams.md)
