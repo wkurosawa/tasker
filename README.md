@@ -27,6 +27,22 @@ docker-compose up
 
 After running this command the application should be available on localhost port 80.
 
+## Stop Application
+
+To stop both DB container and the Application container
+
+```shell
+docker-compose stop
+```
+
+## Stop and remove containers
+
+```shell
+docker-compose down
+```
+
+This command is going to stop and then remove any container, volume and images created by this scripts.
+
 ---
 
 # Documentation
